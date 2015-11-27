@@ -13,15 +13,10 @@
     <section class="page-header">
       <h1 class="project-name">A Python Interpreter Written in Python</h1>
       <h2 class="project-tagline">Allison Kaptur</h2>
-      <a href="https://github.com/qingyunha/taotao" class="btn">View on GitHub</a>
-      <a href="https://github.com/qingyunha/taotao/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/qingyunha/taotao/tarball/master" class="btn">Download .tar.gz</a>
     </section>
 
     <section class="main-content">
-      <p>title: 用Python实现Python解释器
-author: Allison Kaptur
-translator：陶青云</p>
+<p>原文地址: <a href="http://aosabook.org/en/500L/a-python-interpreter-written-in-python.html">500lines</a></p>
 
 <p><em>Allison是Dropbox的工程师，在那里她维护着世界上最大的由Python客户组成的网络。在Dropbox之前，她是Recurse Center的引导师, ... 她在北美的PyCon做过关于Python内部机制的演讲，并且她喜欢奇怪的bugs。她的博客地址是<a href="http://akaptur.com">akaptur.com</a>.</em></p>
 
@@ -83,9 +78,9 @@ translator：陶青云</p>
                      (<span class="pl-s"><span class="pl-pds">"</span>PRINT_ANSWER<span class="pl-pds">"</span></span>, <span class="pl-c1">None</span>)],
     <span class="pl-s"><span class="pl-pds">"</span>numbers<span class="pl-pds">"</span></span>: [<span class="pl-c1">7</span>, <span class="pl-c1">5</span>] }</pre></div>
 
-<p>Python解释器是一个<em>栈机器</em>，所以它必须通过操作栈来完成这个加法。(\aosafigref{500l.interpreter.stackmachine}.)解释器先执行第一条指令，<code>LOAD_VALUE</code>，把第一个数压到栈中。接着它把第二个数也压到栈中。然后，第三条指令，<code>ADD_TWO_VALUES</code>,先把两个数从栈中弹出，加起来，再把结果压入栈中。最后一步，把结果弹出并输出。</p>
+<p>Python解释器是一个<em>栈机器</em>，所以它必须通过操作栈来完成这个加法。(<a href="#figure-1.1">Figure 1.1</a>)解释器先执行第一条指令，<code>LOAD_VALUE</code>，把第一个数压到栈中。接着它把第二个数也压到栈中。然后，第三条指令，<code>ADD_TWO_VALUES</code>,先把两个数从栈中弹出，加起来，再把结果压入栈中。最后一步，把结果弹出并输出。</p>
 
-<p>\aosafigure[240pt]{interpreter-images/interpreter-stack.png}{A stack machine}{500l.interpreter.stackmachine}</p>
+<a name="figure-1.1"></a><img src="interpreter-images/interpreter-stack.png" alt="Figure 1.1 - A stack machine" title="Figure 1.1 - A stack machine">
 
 <p><code>LOAD_VALUE</code>这条指令告诉解释器把一个数压入栈中，但指令本身并没有指明这个数是多少。指令需要一个额外的信息告诉解释器去哪里找到这个数。所以我们的指令集有两个部分：指令本身和一个常量列表。（在Python中，字节码就是我们称为的“指令”，而解释器执行的是<em>code object</em>。）</p>
 
@@ -377,15 +372,14 @@ b<span class="pl-s"><span class="pl-pds">'</span>d<span class="pl-cce">\x01\x00<
 <span class="pl-k">&gt;&gt;&gt;</span> foo()             <span class="pl-c"># &lt;--- (1) We're in the middle of a call to foo ...</span>
 <span class="pl-c1">3</span></pre></div>
 
-<p>\aosafigure[240pt]{interpreter-images/interpreter-callstack.png}{The call stack}{500l.interpreter.callstack}</p>
+<a name="figure-1.2"></a><img src="interpreter-images/interpreter-callstack.png" alt="Figure 1.2 - The call stack" title="Figure 1.2 - The call stack">
 
-<p>现在，解释器在<code>bar</code>函数的调用中。调用栈中有3个fram：一个对应于module层，一个对应函数<code>foo</code>,别一个对应函数<code>bar</code>。(\aosafigref{500l.interpreter.callstack}.)一旦<code>bar</code>返回，与它对应的frame就会从调用栈中弹出并丢弃。</p>
+<p>现在，解释器在<code>bar</code>函数的调用中。调用栈中有3个fram：一个对应于module层，一个对应函数<code>foo</code>,别一个对应函数<code>bar</code>。(<a href="#figure-1.2">Figure 1.2</a>)一旦<code>bar</code>返回，与它对应的frame就会从调用栈中弹出并丢弃。</p>
 
 <p>字节码指令<code>RETURN_VALUE</code>告诉解释器在frame间传递一个值。首先，它把位于调用栈栈顶的frame中的数据栈的栈顶值弹出。然后把整个frame弹出丢弃。最后把这个值压到下一个frame的数据栈中。</p>
 
-<p>当Ned Batchelder和我在写Byterun时，很长一段时间我们的实现中一直有个重大的错误。我们整个虚拟机中只有一个数据栈，而不是每个frame都有个一个。我们做了很多测试，同时在Byterun和真正的Python上，为了保证结果一致。我们几乎通过了所有测试，只有一样东西不能通过，那就是生成器。最后，通过仔细的阅读Cpython的源码，我们发现了错误所在[^thanks]。把数据栈移到每个frame就解决了这个问题。</p>
+<p>当Ned Batchelder和我在写Byterun时，很长一段时间我们的实现中一直有个重大的错误。我们整个虚拟机中只有一个数据栈，而不是每个frame都有个一个。我们做了很多测试，同时在Byterun和真正的Python上，为了保证结果一致。我们几乎通过了所有测试，只有一样东西不能通过，那就是生成器。最后，通过仔细的阅读Cpython的源码，我们发现了错误所在。把数据栈移到每个frame就解决了这个问题。</p>
 
-<p>[^thanks]: My thanks to Michael Arntzenius for his insight on this bug. </p>
 
 <p>回头在看看这个bug，我惊讶的发现Python真的很少依赖于每个frame有一个数据栈这个特性。在Python中几乎所有的操作都会清空数据栈，所以所有的frame公用一个数据栈是没问题的。在上面的例子中，当<code>bar</code>执行完后，它的数据栈为空。即使<code>foo</code>公用这一个栈，它的值也不会受影响。然而，对应生成器，一个关键的特点是它能暂停一个frame的执行，返回到其他的frame，一段时间后它能返回到原来的frame，并以它离开时的同样的状态继续执行。</p>
 
@@ -739,7 +733,7 @@ b<span class="pl-s"><span class="pl-pds">'</span>d<span class="pl-cce">\x01\x00<
 <h2>
 <a id="the-instructions" class="anchor" href="#the-instructions" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Instructions</h2>
 
-<p>剩下了的就是完成那些指令方法了：<code>byte_LOAD_FAST</code>,<code>byte_BINARY_MODULO</code>等等。而这些指令的实现并不是很有趣，这里我们只展示了一小部分，完整的实现在这儿<a href="https://github.com/nedbat/byterun%E3%80%82%EF%BC%88%E8%B6%B3%E5%A4%9F%E6%89%A7%E8%A1%8C%E6%88%91%E4%BB%AC%E5%89%8D%E9%9D%A2%E6%89%80%E8%BF%B0%E7%9A%84%E6%89%80%E6%9C%89%E4%BB%A3%E7%A0%81%E4%BA%86%E3%80%82%EF%BC%89">https://github.com/nedbat/byterun。（足够执行我们前面所述的所有代码了。）</a></p>
+<p>剩下了的就是完成那些指令方法了：<code>byte_LOAD_FAST</code>,<code>byte_BINARY_MODULO</code>等等。而这些指令的实现并不是很有趣，这里我们只展示了一小部分，完整的实现在<a href="https://github.com/nedbat/byterun">这儿</a>（足够执行我们前面所述的所有代码了。）</p>
 
 <div class="highlight highlight-source-python"><pre><span class="pl-k">class</span> <span class="pl-en">VirtualMachine</span>(<span class="pl-e"><span class="pl-c1">object</span></span>):
     [... snip ...]
@@ -958,8 +952,7 @@ bytecode
 
 <p>编译器的无知是优化Python的一个挑战 --- 只看字节码，而不真正运行它，你就不知道每条字节码在干什么！你可以定义一个类，实现<code>__mod__</code>方法，当你对这个类的实例使用<code>%</code>时，Python就会自动调用这个方法。所以，<code>BINARY_MODULO</code>其实可以运行任何代码。</p>
 
-<p>Just looking at the following code, the first calculation of <code>a % b</code> seems wasteful.
-看看下面的代码，第一个<code>a % b</code>看起来没有用。</p>
+<p> 看看下面的代码，第一个<code>a % b</code>看起来没有用。</p>
 
 <div class="highlight highlight-source-python"><pre><span class="pl-k">def</span> <span class="pl-en">mod</span>(<span class="pl-smi">a</span>,<span class="pl-smi">b</span>):
     a <span class="pl-k">%</span> b
@@ -972,7 +965,7 @@ bytecode
 
 <p>Byterun是一个比CPython容易理解的简洁的Python解释器。Byterun复制了CPython的主要结构：一个基于栈的指令集称为字节码，它们顺序执行或在指令间跳转，向栈中压入和从中弹出数据。解释器随着函数和生成器的调用和返回，动态的创建，销毁frame，并在frame间跳转。Byterun也有着和真正解释器一样的限制：因为Python使用动态类型，解释器必须在运行时决定指令的正确行为。</p>
 
-<p>我鼓励你去反汇编你的程序，然后用Byterun来运行。你很快会发现这个缩短版的Byterun所没有实现的指令。完整的实现在<a href="https://github.com/nedbat/byterun%EF%BC%8C%E6%88%96%E8%80%85%E4%BB%94%E7%BB%86%E9%98%85%E8%AF%BB%E7%9C%9F%E6%AD%A3%E7%9A%84CPython%E8%A7%A3%E9%87%8A%E5%99%A8%60ceval.c%60,%E4%BD%A0%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%B7%B1%E7%9A%84%E8%A7%A3%E9%87%8A%E5%99%A8%EF%BC%81">https://github.com/nedbat/byterun，或者仔细阅读真正的CPython解释器`ceval.c`,你也可以实现自己的解释器！</a></p>
+<p>我鼓励你去反汇编你的程序，然后用Byterun来运行。你很快会发现这个缩短版的Byterun所没有实现的指令。完整的实现在<a href="https://github.com/nedbat/byterun">这里</a>或者仔细阅读真正的CPython解释器<code>ceval.c</code>,你也可以实现自己的解释器！</p>
 
 <h2>
 <a id="acknowledgements" class="anchor" href="#acknowledgements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Acknowledgements</h2>
