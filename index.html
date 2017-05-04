@@ -923,7 +923,7 @@ b<span class="pl-s"><span class="pl-pds">'</span>d<span class="pl-cce">\x01\x00<
 
 <p>你可能听过Python是一种动态语言 --- 是它是动态类型的。在我们建造解释器的过程中，已经流露出这个描述。</p>
 
-<p>动态的一个意思是很多工作在运行时完成。前面我们看到Python的编译器没有很多关于代码真正做什么的信息。举个例子，考虑下面这个简单的函数<code>mod</code>。它区两个参数，返回它们的磨运算值。从它的字节码中，我们看到变量<code>a</code>和<code>b</code>首先被加载，然后字节码<code>BINAY_MODULO</code>完成这个模运算。</p>
+<p>动态的一个意思是很多工作在运行时完成。前面我们看到Python的编译器没有很多关于代码真正做什么的信息。举个例子，考虑下面这个简单的函数<code>mod</code>。它区两个参数，返回它们的模运算值。从它的字节码中，我们看到变量<code>a</code>和<code>b</code>首先被加载，然后字节码<code>BINAY_MODULO</code>完成这个模运算。</p>
 
 <div class="highlight highlight-source-python"><pre><span class="pl-k">&gt;&gt;&gt;</span> <span class="pl-k">def</span> mod(a, b):
 ...    <span class="pl-k">return</span> a <span class="pl-k">%</span> b
